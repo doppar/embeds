@@ -18,6 +18,7 @@ meta:
   - [The Brute Force Driver](#the-brute-force-driver)
   - [The pgvector Driver](#the-pgvector-driver)
   - [The Redis Driver](#the-redis-driver)
+    - [Getting RediSearch onto an existing Redis server](#getting-redisearch-onto-an-existing-redis-server)
   - [Choosing Between Them](#choosing-between-them)
 - [Limitations](#limitations)
 
@@ -180,12 +181,39 @@ A real vector index backed by [Redis Stack](https://redis.io/docs/latest/operate
 
 Requires:
 
-- A Redis server with the RediSearch module loaded (Redis Stack, or Redis Enterprise). Plain/community Redis does not include this — check with `MODULE LIST`.
+- A Redis server with the RediSearch module loaded (Redis Stack, or Redis Enterprise). Plain/community Redis does not include this — check with `redis-cli MODULE LIST`; an empty result means it's not loaded.
 - `predis/predis`, which this package does not install for you:
 
 ```bash
 composer require predis/predis
 ```
+
+#### Getting RediSearch onto an existing Redis server
+
+RediSearch is a loadable module (a `.so` file), not a separate database — if you already have Redis running, you do **not** need a second server or a different port. Install the `redis-stack-server` package purely to obtain the module file, then load it into your existing Redis instead of running the package's own server:
+
+```bash
+# 1. Add Redis's official apt repo and install the package
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+sudo apt-get update
+sudo apt-get install redis-stack-server
+
+# 2. Confirm where it dropped the module (typically /opt/redis-stack/lib/redisearch.so)
+find /opt/redis-stack -iname "redisearch*.so"
+
+# 3. Make sure the package's own server isn't competing for your port
+sudo systemctl disable --now redis-stack-server
+
+# 4. Load the module into your EXISTING redis-server and restart it
+echo "loadmodule /opt/redis-stack/lib/redisearch.so" | sudo tee -a /etc/redis/redis.conf
+sudo systemctl restart redis-server
+
+# 5. Confirm it's live on the same server you already had
+redis-cli MODULE LIST   # should now list "search"
+```
+
+No new host or port to configure afterward — your existing `127.0.0.1:6379` now has vector search.
 
 To enable it:
 
