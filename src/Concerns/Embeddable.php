@@ -1,15 +1,24 @@
 <?php
 
-namespace Doppar\Embeds;
+namespace Doppar\Embeds\Concerns;
 
 use Doppar\AI\Pipeline;
 use Doppar\AI\Enum\TaskEnum;
 use Doppar\Embeds\Attributes\Embeds;
+use Doppar\Embeds\EmbeddingWatcher;
+use Doppar\Embeds\EmbedsManager;
+use Doppar\Embeds\Vector;
 use Phaseolies\Database\Entity\Builder;
 use Phaseolies\Database\Entity\Watches\WatchesHandler;
 use Phaseolies\Support\Collection;
 
-trait InteractsWithEmbeddings
+/**
+ * Wires #[Embeds] into a model. Add this trait to any model that uses the
+ * attribute — it registers each #[Embeds] property with #[Watches]'
+ * machinery so embeddings stay in sync on save(), and it provides
+ * whereSimilarTo() for querying by meaning.
+ */
+trait Embeddable
 {
     /**
      * Per-class guard so the #[Embeds] scan only runs once per model class.

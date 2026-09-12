@@ -2,11 +2,6 @@
 
 namespace Doppar\Embeds\Attributes;
 
-/**
- * Marks a model property as semantically searchable. A property carrying
- * this attribute has its value embedded and kept in sync automatically by
- * InteractsWithEmbeddings, and becomes queryable via Model::whereSimilarTo().
- */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 class Embeds
 {

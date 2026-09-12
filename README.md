@@ -20,7 +20,6 @@ meta:
   - [The Redis Driver](#the-redis-driver)
   - [Choosing Between Them](#choosing-between-them)
 - [Limitations](#limitations)
-- [API Reference](#api-reference)
 
 ## Introduction
 
@@ -35,6 +34,14 @@ Everything runs locally. There is no external API call, no API key to configure,
 ```bash
 composer require doppar/embeds
 ```
+
+Embeddings are computed via `doppar/ai`, which uses PHP's FFI extension to run the local model. FFI defaults to `ffi.enable = "preload"`, which permits ad-hoc CLI scripts but **blocks FFI inside any persistent server process** — PHP-FPM, or `php -S` (what `php pool server:start` uses). If embedding generation throws `Could not instantiate model for task: feature-extraction`, this is almost always why. Set, in the php.ini actually serving your requests:
+
+```ini
+ffi.enable=1
+```
+
+For PHP-FPM this can instead be set per-pool via `php_admin_value[ffi.enable] = true`, without touching the global php.ini. Either way, restart PHP-FPM afterward for it to take effect.
 
 Register the launcher in `runtime/config/app.php`:
 
@@ -54,7 +61,7 @@ php pool migrate
 
 ## Defining an Embedded Property
 
-Add the `InteractsWithEmbeddings` trait to a model, then place `#[Embeds]` on the property whose meaning you want to search by.
+Add the `Embeddable` trait to a model, then place `#[Embeds]` on the property whose meaning you want to search by.
 
 ```php
 <?php
@@ -63,11 +70,11 @@ namespace App\Models;
 
 use Phaseolies\Database\Entity\Model;
 use Doppar\Embeds\Attributes\Embeds;
-use Doppar\Embeds\InteractsWithEmbeddings;
+use Doppar\Embeds\Concerns\Embeddable;
 
 class Product extends Model
 {
-    use InteractsWithEmbeddings;
+    use Embeddable;
 
     protected $creatable = ['name', 'description'];
 
@@ -93,7 +100,7 @@ You never call an embedding function yourself. Setting the property and saving i
 
 ## Searching by Meaning
 
-`whereSimilarTo()` is available on every model using `InteractsWithEmbeddings`. Pass the embedded column, the text to search for, and how many results you want.
+`whereSimilarTo()` is available on every model using `Embeddable`. Pass the embedded column, the text to search for, and how many results you want.
 
 ```php
 $results = Product::whereSimilarTo('description', 'a durable waterproof backpack', limit: 10);

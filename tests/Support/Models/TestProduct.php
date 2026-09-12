@@ -3,12 +3,12 @@
 namespace Doppar\Embeds\Tests\Support\Models;
 
 use Doppar\Embeds\Attributes\Embeds;
-use Doppar\Embeds\InteractsWithEmbeddings;
+use Doppar\Embeds\Concerns\Embeddable;
 use Phaseolies\Database\Entity\Model;
 
 class TestProduct extends Model
 {
-    use InteractsWithEmbeddings;
+    use Embeddable;
 
     protected $table = 'test_products';
 
