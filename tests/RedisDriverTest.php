@@ -17,6 +17,16 @@ class RedisDriverTest extends TestCase
 {
     private ?Client $client = null;
 
+    /**
+     * True only once setUp() has a live, RediSearch-capable connection —
+     * guards tearDown() so a failed connect() (client object already
+     * assigned, but never actually connected) can't masquerade as a real
+     * test error when it tries to clean up.
+     *
+     * @var bool
+     */
+    private bool $ready = false;
+
     protected function setUp(): void
     {
         try {
@@ -35,13 +45,14 @@ class RedisDriverTest extends TestCase
             $this->markTestSkipped('The RediSearch module (Redis Stack) is not loaded on this Redis server.');
         }
 
+        $this->ready = true;
         $this->dropIndexIfExists();
         $this->flushEmbedsKeys();
     }
 
     protected function tearDown(): void
     {
-        if ($this->client !== null) {
+        if ($this->ready) {
             $this->dropIndexIfExists();
             $this->flushEmbedsKeys();
         }
