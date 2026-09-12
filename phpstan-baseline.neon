@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Trait Doppar\\Embeds\\Concerns\\Embeddable is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Concerns/Embeddable.php
+
+		-
 			message: '#^Call to an undefined static method Doppar\\Embeds\\Embedding\:\:where\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
@@ -11,12 +17,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 3
 			path: src/Drivers/PgVectorDriver.php
-
-		-
-			message: '#^Trait Doppar\\Embeds\\InteractsWithEmbeddings is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: src/InteractsWithEmbeddings.php
 
 		-
 			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\Schema\:\:create\(\)\.$#'
