@@ -1,0 +1,43 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined static method Doppar\\Embeds\\Embedding\:\:where\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: src/Drivers/BruteForceDriver.php
+
+		-
+			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\DB\:\:connection\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 3
+			path: src/Drivers/PgVectorDriver.php
+
+		-
+			message: '#^Trait Doppar\\Embeds\\InteractsWithEmbeddings is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/InteractsWithEmbeddings.php
+
+		-
+			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\Schema\:\:create\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/database/migrations/2026_09_13_000000_create_embeddings_table.php
+
+		-
+			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\Schema\:\:dropIfExists\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/database/migrations/2026_09_13_000000_create_embeddings_table.php
+
+		-
+			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\DB\:\:connection\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 4
+			path: src/database/migrations/2026_09_14_000000_create_embedding_vectors_table.php
+
+		-
+			message: '#^Call to an undefined static method Phaseolies\\Support\\Facades\\DB\:\:getPdoInstance\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: src/database/migrations/2026_09_14_000000_create_embedding_vectors_table.php

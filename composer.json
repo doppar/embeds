@@ -1,0 +1,56 @@
+{
+    "name": "doppar/embeds",
+    "description": "Semantic search for Doppar models: attribute-driven, locally-computed embeddings and similarity queries, no external API required.",
+    "type": "library",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/doppar/embeds/issues",
+        "source": "https://github.com/doppar/embeds"
+    },
+    "authors": [
+        {
+            "name": "Mahedi Hasan",
+            "email": "mahedy150101@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.5",
+        "doppar/ai": "4.*"
+    },
+    "require-dev": {
+        "doppar/framework": "4.*",
+        "mockery/mockery": "^1.6",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^13.3",
+        "predis/predis": "^3.3"
+    },
+    "suggest": {
+        "predis/predis": "Required to use the \"redis\" embeds driver."
+    },
+    "autoload": {
+        "psr-4": {
+            "Doppar\\Embeds\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Doppar\\Embeds\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "4.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "codewithkyrian/platform-package-installer": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=1G"
+    }
+}

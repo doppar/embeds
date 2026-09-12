@@ -1,0 +1,11 @@
+/vendor
+composer.lock
+/.idea
+/.vscode
+/.phpunit.cache
+composer.phar
+.phpunit.result.cache
+.idea
+.phpstan/
+.phpstan.cache/
+.transformers-cache/
