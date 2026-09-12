@@ -190,7 +190,15 @@ composer require predis/predis
 
 #### Getting RediSearch onto an existing Redis server
 
-RediSearch is a loadable module (a `.so` file), not a separate database — if you already have Redis running, you do **not** need a second server or a different port. Install the `redis-stack-server` package purely to obtain the module file, then load it into your existing Redis instead of running the package's own server:
+RediSearch is a loadable module (a `.so` file), not a separate database — if you already have Redis running, you do **not** need a second server or a different port, *provided your Redis core is version 7.1.0 or newer*. RediSearch 7.x hard-requires it and refuses to load otherwise, logging `Redis version is too old, please upgrade to redis 7.1.0 and above` and **aborting the server it was asked to load into**. Check first:
+
+```bash
+redis-cli INFO server | grep redis_version
+```
+
+If that's below 7.1.0, do not add `loadmodule` to your existing `redis.conf` — it will take your existing Redis down, not just fail to load the module. Run `redis-stack-server` as a second instance on its own port instead (see [Choosing Between Them](#choosing-between-them) below for why this is fine — vector search traffic doesn't need to share a server with your primary cache/session Redis).
+
+If your Redis core is already ≥7.1.0, install the `redis-stack-server` package purely to obtain the module file, then load it into your existing Redis instead of running the package's own server:
 
 ```bash
 # 1. Add Redis's official apt repo and install the package
