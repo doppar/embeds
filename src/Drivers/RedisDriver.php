@@ -106,6 +106,32 @@ class RedisDriver implements VectorIndexDriver
     {
         $this->ensureIndex(count($queryVector));
 
+        try {
+            $result = $this->runSearch($modelClass, $attribute, $queryVector, $limit);
+        } catch (ServerException $e) {
+            if (!$this->isMissingIndex($e)) {
+                throw $e;
+            }
+
+            self::$indexEnsured = false;
+            $this->ensureIndex(count($queryVector));
+            $result = $this->runSearch($modelClass, $attribute, $queryVector, $limit);
+        }
+
+        return $this->parseSearchResults($result);
+    }
+
+    /**
+     * Issue the actual FT.SEARCH KNN query and return its raw reply.
+     *
+     * @param string $modelClass
+     * @param string $attribute
+     * @param array<int, float> $queryVector
+     * @param int $limit
+     * @return array<int, mixed>
+     */
+    private function runSearch(string $modelClass, string $attribute, array $queryVector, int $limit): array
+    {
         $query = sprintf(
             '(@embeddable_type:{%s} @attribute:{%s})=>[KNN %d @vector $vec AS score]',
             $this->escapeTag($modelClass),
@@ -113,7 +139,7 @@ class RedisDriver implements VectorIndexDriver
             $limit,
         );
 
-        $result = $this->client->executeCommand(RawCommand::create(
+        return $this->client->executeCommand(RawCommand::create(
             'FT.SEARCH',
             self::INDEX_NAME,
             $query,
@@ -129,8 +155,20 @@ class RedisDriver implements VectorIndexDriver
             'DIALECT',
             '2',
         ));
+    }
 
-        return $this->parseSearchResults($result);
+    /**
+     * Whether a ServerException from Redis represents a missing index
+     * (as opposed to some other command failure that should propagate).
+     *
+     * @param ServerException $e
+     * @return bool
+     */
+    private function isMissingIndex(ServerException $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'no such index') || str_contains($message, 'unknown index name');
     }
 
     /**
