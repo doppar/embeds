@@ -24,7 +24,7 @@ Read the documentation from doppar official site [Doppar Embeds](https://doppar.
 
 ## Contributing
 
-Thank you for considering contributing to the Doppar framework! The contribution guide can be found in the [Doppar documentation](https://doppar.com/versions/4.x/contributions.html).
+Thank you for considering contributing to the Doppar framework! The contribution guide can be found in the [Doppar documentation](https://doppar.com/versions/4.x/contributions).
 
 ## Code of Conduct
 
