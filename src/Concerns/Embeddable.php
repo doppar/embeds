@@ -21,13 +21,6 @@ use Phaseolies\Support\Collection;
 trait Embeddable
 {
     /**
-     * Per-class guard so the #[Embeds] scan only runs once per model class.
-     *
-     * @var array<string, bool>
-     */
-    private static array $embedsBooted = [];
-
-    /**
      * Per-class cache of the property names carrying #[Embeds], so a fresh
      * INSERT (which #[Watches] never fires for) can still be embedded once,
      * right after the row gets its primary key.
@@ -100,35 +93,38 @@ trait Embeddable
     {
         $class = static::class;
 
-        if (isset(self::$embedsBooted[$class])) {
-            return;
-        }
+        if (!array_key_exists($class, self::$embedsProperties)) {
+            self::$embedsProperties[$class] = [];
+            $reflection = new \ReflectionClass($class);
 
-        self::$embedsBooted[$class] = true;
-        self::$embedsProperties[$class] = [];
+            foreach ($reflection->getProperties() as $property) {
+                $attributes = $property->getAttributes(Embeds::class);
+
+                if (empty($attributes)) {
+                    continue;
+                }
+
+                $name = $property->getName();
+                self::$embedsProperties[$class][] = $name;
+            }
+        }
 
         $reflection = new \ReflectionClass($class);
 
-        foreach ($reflection->getProperties() as $property) {
-            $attributes = $property->getAttributes(Embeds::class);
-
-            if (empty($attributes)) {
-                continue;
-            }
-
-            /** @var Embeds $embeds */
-            $embeds = $attributes[0]->newInstance();
-            $name = $property->getName();
+        foreach (self::$embedsProperties[$class] as $name) {
+            $property = $reflection->getProperty($name);
+            $embeds = $property->getAttributes(Embeds::class)[0]->newInstance();
             $watcherKey = "embeds::{$class}::{$name}";
 
-            app()->singleton($watcherKey, fn() => new EmbeddingWatcher(
-                EmbedsManager::driver(),
-                $name,
-                $embeds->model,
-            ));
+            if (!app()->has($watcherKey)) {
+                app()->singleton($watcherKey, fn() => new EmbeddingWatcher(
+                    EmbedsManager::driver(),
+                    $name,
+                    $embeds->model,
+                ));
+            }
 
             WatchesHandler::register($class, $name, $watcherKey);
-            self::$embedsProperties[$class][] = $name;
         }
     }
 
